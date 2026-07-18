@@ -23,7 +23,7 @@ the watchapp to display.
 ## Files
 
 - `src/c/main.c` — C watchapp that receives the fact via AppMessage and displays it.
-- `src/js/app.js` — Companion JS that opens the config page and forwards the result to the watch.
+- `src/pkjs/index.js` — Companion JS that opens the config page and forwards the result to the watch.
 - `package.json` — App metadata. Declares `configurable` and `config_network_bridge` capabilities.
 - `docs/config/index.html` — Hosted config page that uses `window.pebbleBridge`.
 - `docs/config/bridge-mock.js` — Browser mock for local testing.

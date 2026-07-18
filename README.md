@@ -26,7 +26,23 @@ config page and sends it back to the watch to display.
 https://caco3.github.io/bridge-demo/config/index.html
 ```
 
-## Build
+## Prebuilt binary
+
+A prebuilt PBW is kept in the repository at:
+
+```
+build/bridge-demo.pbw
+```
+
+It is also served via GitHub Pages at:
+
+```
+https://caco3.github.io/bridge-demo/build/bridge-demo.pbw
+```
+
+GitHub Actions rebuilds the PBW on every push to `main` and commits the updated binary automatically.
+
+## Build locally
 
 ```sh
 pebble build

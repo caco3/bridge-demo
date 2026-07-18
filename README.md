@@ -50,6 +50,25 @@ pebble build
 
 Produces `build/bridge-demo.pbw`.
 
+## Sideload with ADB
+
+Push the PBW to your Android phone and then open it with the Pebble/Rebble app:
+
+```sh
+adb push build/bridge-demo.pbw /sdcard/Download/bridge-demo.pbw
+```
+
+On the phone:
+1. Open the Pebble/Rebble app.
+2. Go to **Apps → Sideload** (or open the downloaded file from a file manager).
+3. Select `bridge-demo.pbw` and install it.
+
+Alternatively, if developer mode is enabled and the phone is reachable on the local network, you can install directly from the command line:
+
+```sh
+pebble install --phone <phone-ip-address> build/bridge-demo.pbw
+```
+
 ## Test
 
 1. Install a build of the mobile app that includes coredevices/mobileapp#300.

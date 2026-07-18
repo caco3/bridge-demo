@@ -10,20 +10,28 @@ the mobile app's WebView. Normally these requests would be blocked by WebView
 CORS/mixed-content restrictions. With the bridge, the config page can delegate
 requests to the native Android side.
 
-This demo fetches a random fact from `https://uselessfacts.jsph.pl` in the
-config page and sends it back to the watch to display.
+This demo config page exercises four bridge APIs:
+
+- `window.pebbleBridge.config` — config passed from the watchapp
+- `window.pebbleBridge.fetch()` — HTTP request proxied by the native app
+- `window.pebbleBridge.storage` — encrypted native storage
+- `window.pebbleBridge.close()` — return a value to the watchapp
+
+It fetches a random fact from `https://uselessfacts.jsph.pl` and returns it to
+the watchapp to display.
 
 ## Files
 
 - `src/c/main.c` — C watchapp that receives the fact via AppMessage and displays it.
 - `src/js/app.js` — Companion JS that opens the config page and forwards the result to the watch.
 - `package.json` — App metadata. Declares `configurable` and `config_network_bridge` capabilities.
-- `docs/config/index.html` — Hosted config page that uses `window.pebbleBridge.fetch()`.
+- `docs/config/index.html` — Hosted config page that uses `window.pebbleBridge`.
+- `docs/config/bridge-mock.js` — Browser mock for local testing.
 
 ## Hosted config page
 
 ```
-https://caco3.github.io/bridge-demo/config/index.html?v=1
+https://caco3.github.io/bridge-demo/config/index.html?v=2
 ```
 
 ## Prebuilt binary

@@ -8,63 +8,185 @@
   <meta http-equiv="Expires" content="0">
   <title>Bridge Demo Config</title>
   <style>
-    body { font-family: sans-serif; padding: 1rem; background: #1a1a1a; color: #eee; }
-    button { padding: 0.75rem 1rem; font-size: 1rem; border: none; border-radius: 4px; cursor: pointer; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 1rem; background: #1a1a1a; color: #eee; line-height: 1.5; }
+    h2 { margin-top: 0; }
+    .card { background: #252525; border-radius: 0.5rem; padding: 1rem; margin: 1rem 0; }
+    label { display: block; margin-top: 0.75rem; font-size: 0.875rem; color: #aaa; }
+    input[type="text"] { width: 100%; box-sizing: border-box; padding: 0.5rem; margin-top: 0.25rem; background: #333; color: #eee; border: 1px solid #444; border-radius: 0.25rem; }
+    button { padding: 0.75rem 1rem; font-size: 1rem; border: none; border-radius: 4px; cursor: pointer; margin-right: 0.5rem; margin-top: 0.75rem; }
     .primary { background: #4caf50; color: #fff; }
-    .status { margin-top: 1rem; font-size: 0.9rem; color: #aaa; }
-    pre { background: #333; padding: 0.5rem; overflow-x: auto; }
+    .secondary { background: #444; color: #fff; }
+    .danger { background: #e53935; color: #fff; }
+    .status { margin-top: 1rem; font-size: 0.9rem; }
+    .ok { color: #4caf50; }
+    .error { color: #ff6b6b; }
+    pre { background: #333; padding: 0.5rem; overflow-x: auto; border-radius: 0.25rem; }
+    small { color: #888; }
   </style>
 </head>
 <body>
   <h2>PebbleBridge Demo</h2>
-  <p>This page uses the native bridge to fetch data from a third-party API that would normally be blocked by WebView CORS.</p>
-  <button id="fetch-btn" class="primary">Fetch random fact</button>
-  <div class="status" id="status"></div>
+  <p>This page demonstrates the <code>window.pebbleBridge</code> API: <code>fetch</code>, <code>storage</code>, <code>config</code>, and <code>close</code>. When loaded inside the Pebble mobile app, requests bypass WebView CORS and storage is handled by the native app.</p>
+
+  <div class="card">
+    <div id="bridge-status" class="status">Detecting bridge...</div>
+  </div>
+
+  <div class="card">
+    <h3>Config from watch (window.pebbleBridge.config)</h3>
+    <pre id="config-dump">{}</pre>
+  </div>
+
+  <div class="card">
+    <h3>Fetch demo</h3>
+    <p><small>Fetches a random fact through the native bridge or the browser mock.</small></p>
+    <button id="fetch-btn" class="primary">Fetch random fact</button>
+    <div id="fetch-status" class="status"></div>
+  </div>
+
+  <div class="card">
+    <h3>Storage demo</h3>
+    <p><small>Values are stored in the native app's encrypted storage when the bridge is available.</small></p>
+    <label for="storage-key">Key</label>
+    <input type="text" id="storage-key" value="demo_key">
+    <label for="storage-value">Value</label>
+    <input type="text" id="storage-value" placeholder="Enter a value">
+    <button id="btn-storage-set" class="secondary">Set</button>
+    <button id="btn-storage-get" class="secondary">Get</button>
+    <button id="btn-storage-remove" class="danger">Remove</button>
+    <div id="storage-status" class="status"></div>
+  </div>
+
+  <div class="card">
+    <h3>Close demo</h3>
+    <p><small>Returns a value to the watch app. Uses <code>window.pebbleBridge.close()</code> when available, falling back to the legacy <code>pebblejs://close#</code> URL.</small></p>
+    <button id="close-btn" class="primary">Close and return fact</button>
+    <div id="close-status" class="status"></div>
+  </div>
+
   <pre id="debug"></pre>
 
+  <script src="bridge-mock.js"></script>
+
   <script type="text/javascript">
-    function log(msg) {
-      const el = document.getElementById('debug');
-      el.textContent += msg + '\n';
-      console.log(msg);
-    }
-
-    function closeWith(config) {
-      const url = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(config));
-      window.location.href = url;
-    }
-
-    document.getElementById('fetch-btn').addEventListener('click', async function() {
-      const status = document.getElementById('status');
-      status.textContent = 'Fetching...';
+    (function() {
+      'use strict';
 
       const bridge = window.pebbleBridge;
-      if (!bridge || !bridge.version) {
-        status.textContent = 'Bridge not available. Make sure the watchapp has the config_network_bridge capability.';
-        return;
+      const bridgeStatusEl = document.getElementById('bridge-status');
+      const configDumpEl = document.getElementById('config-dump');
+      const fetchStatusEl = document.getElementById('fetch-status');
+      const storageStatusEl = document.getElementById('storage-status');
+      const closeStatusEl = document.getElementById('close-status');
+      const debugEl = document.getElementById('debug');
+
+      function log(msg) {
+        debugEl.textContent += msg + '\n';
+        console.log(msg);
       }
 
-      log('Bridge available: ' + bridge.version);
-
-      try {
-        const res = await bridge.fetch('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en', {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' },
-          timeout: 10000
-        });
-        log('HTTP status: ' + res.status);
-        const data = await res.json();
-        log('Response: ' + JSON.stringify(data));
-        status.innerHTML = '<b>' + (data.text || 'No fact text') + '</b>';
-        closeWith({ fact: data.text || 'No fact text' });
-      } catch (err) {
-        log('Fetch error: ' + err.message);
-        status.textContent = 'Fetch failed: ' + err.message;
-        closeWith({ error: err.message });
+      function setStatus(el, text, type) {
+        el.textContent = text;
+        el.className = 'status ' + (type || '');
       }
-    });
 
-    log('Bridge status: ' + (window.pebbleBridge && window.pebbleBridge.version ? 'available (' + window.pebbleBridge.version + ')' : 'not available'));
+      function closeWith(config) {
+        if (bridge && typeof bridge.close === 'function') {
+          bridge.close(config);
+          setStatus(closeStatusEl, 'Sent close value to bridge.', 'ok');
+        } else {
+          window.location.href = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(config));
+        }
+      }
+
+      if (bridge && bridge.version) {
+        setStatus(bridgeStatusEl, 'Bridge available: ' + bridge.version, 'ok');
+        try {
+          configDumpEl.textContent = JSON.stringify(bridge.config || {}, null, 2);
+        } catch (e) {
+          configDumpEl.textContent = 'Error reading config: ' + e.message;
+        }
+      } else {
+        setStatus(bridgeStatusEl, 'Bridge not available. Make sure the watchapp declares the config_network_bridge capability.', 'error');
+        configDumpEl.textContent = '{}';
+      }
+
+      let lastFact = null;
+      document.getElementById('fetch-btn').addEventListener('click', async function() {
+        if (!bridge || !bridge.version) {
+          setStatus(fetchStatusEl, 'Bridge not available.', 'error');
+          return;
+        }
+        setStatus(fetchStatusEl, 'Fetching...', '');
+        try {
+          const res = await bridge.fetch('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en', {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+            timeout: 10000
+          });
+          log('Fetch HTTP status: ' + res.status);
+          const data = await res.json();
+          log('Fetch response: ' + JSON.stringify(data));
+          lastFact = data.text || 'No fact text';
+          setStatus(fetchStatusEl, lastFact, 'ok');
+        } catch (err) {
+          log('Fetch error: ' + err.message);
+          setStatus(fetchStatusEl, 'Fetch failed: ' + err.message, 'error');
+        }
+      });
+
+      document.getElementById('btn-storage-set').addEventListener('click', async function() {
+        if (!bridge || !bridge.storage) {
+          setStatus(storageStatusEl, 'Bridge storage not available.', 'error');
+          return;
+        }
+        try {
+          const key = document.getElementById('storage-key').value;
+          const value = document.getElementById('storage-value').value;
+          await bridge.storage.set(key, value);
+          setStatus(storageStatusEl, 'Set "' + key + '"', 'ok');
+          log('Storage set: ' + key);
+        } catch (err) {
+          setStatus(storageStatusEl, 'Set failed: ' + err.message, 'error');
+        }
+      });
+
+      document.getElementById('btn-storage-get').addEventListener('click', async function() {
+        if (!bridge || !bridge.storage) {
+          setStatus(storageStatusEl, 'Bridge storage not available.', 'error');
+          return;
+        }
+        try {
+          const key = document.getElementById('storage-key').value;
+          const value = await bridge.storage.get(key);
+          setStatus(storageStatusEl, 'Get "' + key + '" = ' + (value !== null ? value : '(null)'), 'ok');
+          log('Storage get: ' + key + ' = ' + value);
+        } catch (err) {
+          setStatus(storageStatusEl, 'Get failed: ' + err.message, 'error');
+        }
+      });
+
+      document.getElementById('btn-storage-remove').addEventListener('click', async function() {
+        if (!bridge || !bridge.storage) {
+          setStatus(storageStatusEl, 'Bridge storage not available.', 'error');
+          return;
+        }
+        try {
+          const key = document.getElementById('storage-key').value;
+          await bridge.storage.remove(key);
+          setStatus(storageStatusEl, 'Removed "' + key + '"', 'ok');
+          log('Storage remove: ' + key);
+        } catch (err) {
+          setStatus(storageStatusEl, 'Remove failed: ' + err.message, 'error');
+        }
+      });
+
+      document.getElementById('close-btn').addEventListener('click', function() {
+        closeWith({ fact: lastFact || 'No fact fetched yet' });
+      });
+
+      log('Page loaded. Bridge status: ' + (bridge && bridge.version ? 'available (' + bridge.version + ')' : 'not available'));
+    })();
   </script>
 </body>
 </html>

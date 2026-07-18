@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bridge Demo Config</title>
+  <style>
+    body { font-family: sans-serif; padding: 1rem; background: #1a1a1a; color: #eee; }
+    button { padding: 0.75rem 1rem; font-size: 1rem; border: none; border-radius: 4px; cursor: pointer; }
+    .primary { background: #4caf50; color: #fff; }
+    .status { margin-top: 1rem; font-size: 0.9rem; color: #aaa; }
+    pre { background: #333; padding: 0.5rem; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h2>PebbleBridge Demo</h2>
+  <p>This page uses the native bridge to fetch data from a third-party API that would normally be blocked by WebView CORS.</p>
+  <button id="fetch-btn" class="primary">Fetch random fact</button>
+  <div class="status" id="status"></div>
+  <pre id="debug"></pre>
+
+  <script type="text/javascript">
+    function log(msg) {
+      const el = document.getElementById('debug');
+      el.textContent += msg + '\n';
+      console.log(msg);
+    }
+
+    function closeWith(config) {
+      const url = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(config));
+      window.location.href = url;
+    }
+
+    document.getElementById('fetch-btn').addEventListener('click', async function() {
+      const status = document.getElementById('status');
+      status.textContent = 'Fetching...';
+
+      const bridge = window.pebbleBridge;
+      if (!bridge || !bridge.version) {
+        status.textContent = 'Bridge not available. Make sure the watchapp has the config_network_bridge capability.';
+        return;
+      }
+
+      log('Bridge available: ' + bridge.version);
+
+      try {
+        const res = await bridge.fetch('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en', {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          timeout: 10000
+        });
+        log('HTTP status: ' + res.status);
+        const data = await res.json();
+        log('Response: ' + JSON.stringify(data));
+        status.innerHTML = '<b>' + (data.text || 'No fact text') + '</b>';
+        closeWith({ fact: data.text || 'No fact text' });
+      } catch (err) {
+        log('Fetch error: ' + err.message);
+        status.textContent = 'Fetch failed: ' + err.message;
+        closeWith({ error: err.message });
+      }
+    });
+
+    log('Bridge status: ' + (window.pebbleBridge && window.pebbleBridge.version ? 'available (' + window.pebbleBridge.version + ')' : 'not available'));
+  </script>
+</body>
+</html>

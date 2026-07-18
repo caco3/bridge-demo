@@ -18,12 +18,12 @@ config page and sends it back to the watch to display.
 - `src/c/main.c` — C watchapp that receives the fact via AppMessage and displays it.
 - `src/js/app.js` — Companion JS that opens the config page and forwards the result to the watch.
 - `package.json` — App metadata. Declares `configurable` and `config_network_bridge` capabilities.
-- `bridge-demo/config/index.html` (in the `pebble-home-assistant-ws` repo) — Hosted config page that uses `window.pebbleBridge.fetch()`.
+- `docs/config/index.html` — Hosted config page that uses `window.pebbleBridge.fetch()`.
 
 ## Hosted config page
 
 ```
-https://caco3.github.io/pebble-home-assistant-ws/bridge-demo/config/index.html
+https://caco3.github.io/bridge-demo/config/index.html
 ```
 
 ## Build

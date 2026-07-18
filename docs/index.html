@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PebbleBridge Demo</title>
+  <style>
+    body { font-family: sans-serif; padding: 1rem; max-width: 600px; margin: auto; line-height: 1.5; }
+    code { background: #f0f0f0; padding: 0.15rem 0.3rem; border-radius: 3px; }
+    pre { background: #f0f0f0; padding: 0.5rem; overflow-x: auto; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+  <h1>PebbleBridge Demo</h1>
+  <p>This is the companion page for the <a href="https://github.com/caco3/bridge-demo">bridge-demo</a> Pebble watchapp, which demonstrates the native Android <code>PebbleBridge</code> from <a href="https://github.com/coredevices/mobileapp/pull/300">coredevices/mobileapp#300</a>.</p>
+
+  <h2>Config page</h2>
+  <p>The watchapp settings open this config page:</p>
+  <p><a href="config/index.html">config/index.html</a></p>
+
+  <h2>What it demonstrates</h2>
+  <p>The config page uses <code>window.pebbleBridge.fetch()</code> to call a third-party API that would normally be blocked by WebView CORS. The fetched text is sent back to the watchapp and shown on the watch.</p>
+
+  <h2>Download</h2>
+  <p>Latest build: <a href="build/bridge-demo.pbw">bridge-demo.pbw</a></p>
+</body>
+</html>

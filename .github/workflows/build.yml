@@ -40,7 +40,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add build/bridge-demo.pbw docs/build/bridge-demo.pbw
+          git add -f build/bridge-demo.pbw docs/build/bridge-demo.pbw
           if git diff --cached --quiet; then
             echo "No binary changes to commit"
           else

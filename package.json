@@ -1,0 +1,31 @@
+{
+  "name": "bridge-demo",
+  "author": "MakeAwesomeHappen",
+  "version": "1.0.0",
+  "keywords": ["pebble-app"],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "bridge-demo",
+    "uuid": "049d2028-9559-4e96-bbee-e135c6cf2727",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": [
+      "aplite",
+      "basalt",
+      "chalk",
+      "diorite",
+      "emery",
+      "flint",
+      "gabbro"
+    ],
+    "watchapp": {
+      "watchface": false
+    },
+    "capabilities": ["configurable", "config_network_bridge"],
+    "messageKeys": ["fact", "error"],
+    "resources": {
+      "media": []
+    }
+  }
+}

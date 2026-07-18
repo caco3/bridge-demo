@@ -1,7 +1,7 @@
 // Bridge demo companion: receives the fetched fact from the config page
 // and sends it to the watch via AppMessage.
 
-const ConfigPageUrl = 'https://caco3.github.io/bridge-demo/config/index.html';
+const ConfigPageUrl = 'https://caco3.github.io/bridge-demo/config/index.html?v=1';
 
 Pebble.addEventListener('ready', function() {
   console.log('Bridge demo ready');

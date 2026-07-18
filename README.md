@@ -23,7 +23,7 @@ config page and sends it back to the watch to display.
 ## Hosted config page
 
 ```
-https://caco3.github.io/bridge-demo/config/index.html
+https://caco3.github.io/bridge-demo/config/index.html?v=1
 ```
 
 ## Prebuilt binary
